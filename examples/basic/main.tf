@@ -1,5 +1,42 @@
-#####################################################################################
-# Terraform module examples are meant to show an _example_ on how to use a module
-# per use-case. The code below should not be copied directly but referenced in order
-# to build your own root module that invokes this module
-#####################################################################################
+
+
+module "bootstrap_github" {
+  source = "../../"
+
+  available_regions         = ["eu-west-1", "eu-west-2", "us-east-1"]
+  environment               = "Production"
+  enable_github_integration = true
+  git_repository            = "https://github.com/appvia/tf-aws-bootstrap.git"
+  owner                     = "Engineering"
+
+  ## Cloudaccess configuration
+  cloudaccess_repository_name                       = "appvia/tf-aws-cloudaccess"
+  cloudaccess_role_readonly_name                    = "cloudaccess-ro"
+  cloudaccess_role_readwrite_name                   = "cloudaccess"
+  cloudaccess_terraform_state_key                   = "tf-aws-cloudaccess/terraform.tfstate"
+  cloudaccess_terraform_state_readwrite_policy_name = "lza-terraform-state-readwrite"
+  cloudaccess_terraform_state_readonly_policy_name  = "lza-terraform-state-readonly"
+
+  ## Stack names
+  stack_cicd_iam_roles_name  = "lza-cicd-iam-roles"
+  stack_oidc_provider_name   = "lza-oidc-provider"
+  stack_terraform_state_name = "lza-terraform-state"
+
+  ## OIDC provider thumbprints for GitHub
+  oidc_provider_url = "https://token.actions.githubusercontent.com"
+  oidc_provider_thumbprints = [
+    "6938fd4d98bab03faadb97b34396831e3780aea1",
+    "1c58a3a8518e8759bf075b76b750d4f2df264fcd",
+  ]
+  oidc_provider_client_ids = [
+    "sts.amazonaws.com",
+    "https://github.com/appvia",
+  ]
+
+  tags = {
+    Environment = "Production"
+    GitRepo     = "https://github.com/appvia/tf-aws-bootstrap.git"
+    Owner       = "Engineering"
+    Product     = "LandingZone"
+  }
+}

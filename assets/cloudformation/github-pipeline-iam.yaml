@@ -1,0 +1,358 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Provision the IAM roles required for Github CI Pipelines
+
+Parameters:
+  CloudAccessRoleReadWriteName:
+    Description: The name of the cloud access IAM Role used for provisioning resources
+    Type: String
+  CloudAccessRoleReadOnlyName:
+    Description: The name of the cloud access IAM Role used for validating changes
+    Type: String
+  Environment:
+    Description: The name of the environment
+    Type: String
+    Default: Production
+  GitRepo:
+    Description: The URL of the Git repository
+    Type: String
+  IdentityProviderName:
+    Description: The name of the OIDC Identity Provider
+    Type: String
+  RepositoryName:
+    Description: The name of the repository allowed to assume the cloud access roles
+    Type: String
+  TerraformStateKey:
+    Description: The terraform state used by the cloud access roles
+    Type: String
+  TerraformStateRWPolicyName:
+    Description: The name of the Terraform State Read Write IAM Policy
+    Type: String
+  TerraformStateROPolicyName:
+    Description: The name of the Terraform State Read Only IAM Policy
+    Type: String
+
+Resources:
+  TFStatePolicyReadWrite:
+    Type: "AWS::IAM::ManagedPolicy"
+    Properties:
+      ManagedPolicyName: !Ref TerraformStateRWPolicyName
+      Description: "Provides the permissions for cloudaccess to read and write to the terraform state"
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: AllowDynamoDB
+            Effect: Allow
+            Action:
+              - dynamodb:DeleteItem
+              - dynamodb:DescribeTable
+              - dynamodb:GetItem
+              - dynamodb:PutItem
+            Resource:
+              - !Sub "arn:aws:dynamodb:*:${AWS::AccountId}:table/${AWS::AccountId}-${AWS::Region}-tflock"
+          - Sid: AllowS3Buckets
+            Effect: Allow
+            Action:
+              - s3:ListBucket
+            Resource:
+              - "arn:aws:s3:::${AWS::AccountId}-${AWS::Region}-tfstate"
+              - "arn:aws:s3:::${AWS::AccountId}-${AWS::Region}-tfstate/*"
+          - Sid: AllowS3Objects
+            Effect: Allow
+            Action:
+              - s3:DeleteObject
+              - s3:GetObject
+              - s3:ListBucket
+              - s3:PutObject
+            Resource:
+              - !Sub "arn:aws:s3:::${AWS::AccountId}-${AWS::Region}-tfstate/${TerraformStateKey}"
+
+  TFStatePolicyReadOnly:
+    Type: "AWS::IAM::ManagedPolicy"
+    Properties:
+      ManagedPolicyName: !Ref TerraformStateROPolicyName
+      Description: "Provides the permissions for cloudaccess to read the terraform state"
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: AllowDynamoDB
+            Effect: Allow
+            Action:
+              - dynamodb:DeleteItem
+              - dynamodb:DescribeTable
+              - dynamodb:GetItem
+              - dynamodb:PutItem
+            Resource:
+              - !Sub "arn:aws:dynamodb:*:${AWS::AccountId}:table/${AWS::AccountId}-${AWS::Region}-tflock"
+          - Sid: AllowS3Buckets
+            Effect: Allow
+            Action:
+              - s3:ListBucket
+            Resource:
+              - "arn:aws:s3:::${AWS::AccountId}-${AWS::Region}-tfstate"
+              - "arn:aws:s3:::${AWS::AccountId}-${AWS::Region}-tfstate/*"
+          - Sid: AllowS3RemoteState
+            Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:ListBucket
+            Resource:
+              - !Sub "arn:aws:s3:::${AWS::AccountId}-${AWS::Region}-tfstate/${TerraformStateKey}"
+
+  CloudAccessRoleReadWrite:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref CloudAccessRoleReadWriteName
+      Description: Used by cloudaccess to provision iam roles for pipelines across accounts
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated:
+                - !Sub "arn:aws:iam::${AWS::AccountId}:oidc-provider/${IdentityProviderName}"
+            Action:
+              - "sts:AssumeRoleWithWebIdentity"
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: ["sts.amazonaws.com"]
+              StringLike:
+                token.actions.githubusercontent.com:sub:
+                  [
+                    !Sub "repo:${RepositoryName}:ref:refs/heads/main",
+                    !Sub "repo:${RepositoryName}:environment:production",
+                  ]
+      ManagedPolicyArns:
+        - !Ref TFStatePolicyReadWrite
+        - arn:aws:iam::aws:policy/AWSCloudFormationFullAccess
+        - arn:aws:iam::aws:policy/AWSOrganizationsReadOnlyAccess
+        - arn:aws:iam::aws:policy/AWSSSODirectoryReadOnly
+        - arn:aws:iam::aws:policy/AWSSSOReadOnly
+        - arn:aws:iam::aws:policy/AmazonSNSFullAccess
+        - arn:aws:iam::aws:policy/CloudWatchFullAccess
+        - arn:aws:iam::aws:policy/IAMFullAccess
+      Path: "/"
+      Policies:
+        - PolicyName: allow-readonly-kms
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: AllowReadonlyKMS
+                Effect: Allow
+                Action:
+                  - "kms:DescribeKey"
+                  - "kms:GetKeyRotationStatus"
+                  - "kms:ListAliases"
+                  - "kms:ListKeys"
+                  - "kms:ListResourceTags"
+                  - "kms:ListRetirableGrants"
+                Resource: "*"
+
+        - PolicyName: allow-sns
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: AllowSNS
+                Effect: Allow
+                Action:
+                  - "sns:CreateTopic"
+                  - "sns:DeleteTopic"
+                  - "sns:GetTopicAttributes"
+                  - "sns:ListSubscriptionsByTopic"
+                  - "sns:ListTopics"
+                  - "sns:Publish"
+                  - "sns:Subscribe"
+                  - "sns:TagResource"
+                  - "sns:UntagResource"
+                Resource: "*"
+
+        - PolicyName: allow-eventbridge
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: AllowEventBridge
+                Effect: Allow
+                Action:
+                  - "events:DeleteRule"
+                  - "events:DescribeRule"
+                  - "events:DisableRule"
+                  - "events:EnableRule"
+                  - "events:ListRuleNamesByTarget"
+                  - "events:ListRules"
+                  - "events:ListTagsForResource"
+                  - "events:ListTargetsByRule"
+                  - "events:PutEvents"
+                  - "events:PutRule"
+                  - "events:PutTargets"
+                  - "events:RemoveTargets"
+                  - "events:TagResource"
+                  - "events:UntagResource"
+                Resource: "*"
+
+        - PolicyName: allow-readonly-secrets
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: AllowReadonlySecrets
+                Effect: Allow
+                Action:
+                  - "secretsmanager:GetSecretValue"
+                  - "secretsmanager:GetResourcePolicy"
+                  - "secretsmanager:DescribeSecret"
+                  - "secretsmanager:ListSecrets"
+                Resource: "*"
+
+        - PolicyName: allow-readwrite-lambda
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: AllowReadWriteLambda
+                Effect: Allow
+                Action:
+                  - "lambda:AddPermission"
+                  - "lambda:CreateAlias"
+                  - "lambda:CreateFunction"
+                  - "lambda:DeleteAlias"
+                  - "lambda:DeleteFunction"
+                  - "lambda:Get*"
+                  - "lambda:ListAliases"
+                  - "lambda:ListFunctions"
+                  - "lambda:ListVersionsByFunction"
+                  - "lambda:PublishVersion"
+                  - "lambda:RemovePermission"
+                  - "lambda:TagResource"
+                  - "lambda:UntagResource"
+                  - "lambda:UpdateAlias"
+                  - "lambda:UpdateFunctionCode"
+                  - "lambda:UpdateFunctionConfiguration"
+                Resource: "*"
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: GitRepo
+          Value: !Ref GitRepo
+        - Key: Provisioner
+          Value: CloudFormation
+        - Key: Owner
+          Value: Support
+        - Key: Product
+          Value: LandingZone
+        - Key: aws-cloudformation-stack-id
+          Value: !Ref "AWS::StackId"
+        - Key: aws-cloudformation-stack-id
+          Value: !Ref "AWS::StackId"
+        - Key: aws-cloudformation-stack-name
+          Value: !Ref "AWS::StackName"
+
+  CloudAccessRoleReadOnly:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref CloudAccessRoleReadOnlyName
+      Description: Used by cloudaccess to validate the provisioning of roles for pipelines
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated:
+                - !Sub "arn:aws:iam::${AWS::AccountId}:oidc-provider/${IdentityProviderName}"
+            Action:
+              - "sts:AssumeRoleWithWebIdentity"
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: ["sts.amazonaws.com"]
+              StringLike:
+                token.actions.githubusercontent.com:sub:
+                  [!Sub "repo:${RepositoryName}:*"]
+      ManagedPolicyArns:
+        - !Ref TFStatePolicyReadOnly
+        - arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
+        - arn:aws:iam::aws:policy/AWSOrganizationsReadOnlyAccess
+        - arn:aws:iam::aws:policy/AWSSSODirectoryReadOnly
+        - arn:aws:iam::aws:policy/AWSSSOReadOnly
+        - arn:aws:iam::aws:policy/AmazonSNSReadOnlyAccess
+        - arn:aws:iam::aws:policy/CloudWatchReadOnlyAccess
+        - arn:aws:iam::aws:policy/IAMReadOnlyAccess
+      Path: "/"
+      Policies:
+        - PolicyName: allow-readonly-kms
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: AllowReadonlyKMS
+                Effect: Allow
+                Action:
+                  - "kms:DescribeKey"
+                  - "kms:GetKeyRotationStatus"
+                  - "kms:ListAliases"
+                  - "kms:ListKeys"
+                  - "kms:ListResourceTags"
+                  - "kms:ListRetirableGrants"
+                Resource: "*"
+
+        - PolicyName: allow-readonly-eventbridge
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: AllowReadonlyEventBridge
+                Effect: Allow
+                Action:
+                  - "events:DescribeRule"
+                  - "events:ListRuleNamesByTarget"
+                  - "events:ListRules"
+                  - "events:ListTagsForResource"
+                  - "events:ListTargetsByRule"
+                Resource: "*"
+
+        - PolicyName: allow-readonly-sns
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: AllowReadonlySNS
+                Effect: Allow
+                Action:
+                  - "sns:GetTopicAttributes"
+                  - "sns:ListSubscriptionsByTopic"
+                  - "sns:ListTopics"
+                Resource: "*"
+
+        - PolicyName: allow-readonly-secrets
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: AllowReadonlySecrets
+                Effect: Allow
+                Action:
+                  - "secretsmanager:GetSecretValue"
+                  - "secretsmanager:GetResourcePolicy"
+                  - "secretsmanager:DescribeSecret"
+                  - "secretsmanager:ListSecrets"
+                Resource: "*"
+
+        - PolicyName: allow-readonly-lambda
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: AllowReadonlyLambda
+                Effect: Allow
+                Action:
+                  - "lambda:Get*"
+                  - "lambda:List*"
+                Resource: "*"
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: GitRepo
+          Value: !Ref GitRepo
+        - Key: Provisioner
+          Value: CloudFormation
+        - Key: Owner
+          Value: Support
+        - Key: Product
+          Value: LandingZone
+        - Key: aws-cloudformation-stack-id
+          Value: !Ref "AWS::StackId"
+        - Key: aws-cloudformation-stack-id
+          Value: !Ref "AWS::StackId"
+        - Key: aws-cloudformation-stack-name
+          Value: !Ref "AWS::StackName"

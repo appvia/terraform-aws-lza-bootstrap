@@ -1,0 +1,44 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Provisions the identity provider in member account
+
+Parameters:
+  ClientIdList:
+    Type: CommaDelimitedList
+    Description: The list of Client IDs to trust
+  Environment:
+    Type: String
+    Description: The name of the environment
+    Default: Production
+  GitRepo:
+    Type: String
+    Description: The URL of the Git repository
+  ThumbprintList:
+    Type: CommaDelimitedList
+    Description: The list of thumbprints to trust
+  Url:
+    Type: String
+    Description: The URL of the OIDC Identity Provider
+
+Resources:
+  IdentityProvider:
+    Type: AWS::IAM::OIDCProvider
+    Properties:
+      ClientIdList: !Ref ClientIdList
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: GitRepo
+          Value: !Ref GitRepo
+        - Key: Owner
+          Value: Support
+        - Key: Product
+          Value: LandingZone
+        - Key: Provisioner
+          Value: CloudFormation
+        - Key: aws-cloudformation-stack-id
+          Value: !Ref "AWS::StackId"
+        - Key: aws-cloudformation-stack-name
+          Value: !Ref "AWS::StackName"
+      ThumbprintList: !Ref ThumbprintList
+      Url: !Ref Url
