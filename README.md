@@ -23,7 +23,10 @@ Once provisioned we can utilize the landing zone to deploy further resources.
 
 ## Usage
 
-a) Firstly we need to create the dependencies for the terraform state.
+a) Firstly we need to ensure "Trusted Access" is permitted within Cloudformation, see https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/stacksets-orgs-activate-trusted-access.html
+b) Run the pipeline locally to provision the resources
+c) Once the resources are provisioned, we can push the local terraform state to the S3 bucket.
+d) Move the pipeline under CI/CD
 
 ## Update Documentation
 
@@ -47,6 +50,7 @@ The `terraform-docs` utility is used to generate this README. Follow the below s
 | <a name="input_available_regions"></a> [available\_regions](#input\_available\_regions) | List of available regions for deployment we are configuring | `list(string)` | n/a | yes |
 | <a name="input_cloudaccess_repository_name"></a> [cloudaccess\_repository\_name](#input\_cloudaccess\_repository\_name) | Name of the CloudAccess repository | `string` | n/a | yes |
 | <a name="input_git_repository"></a> [git\_repository](#input\_git\_repository) | Git repository URL | `string` | n/a | yes |
+| <a name="input_home_region"></a> [home\_region](#input\_home\_region) | The AWS region we will use at the home region | `string` | n/a | yes |
 | <a name="input_oidc_provider_url"></a> [oidc\_provider\_url](#input\_oidc\_provider\_url) | OIDC provider URL for GitHub or GitLab | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags to apply to all resources | `map(any)` | n/a | yes |
 | <a name="input_cloudaccess_role_readonly_name"></a> [cloudaccess\_role\_readonly\_name](#input\_cloudaccess\_role\_readonly\_name) | Name of the CloudAccess role for read-only access | `string` | `"cloudaccess-ro"` | no |

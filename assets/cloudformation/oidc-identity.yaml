@@ -13,6 +13,12 @@ Parameters:
   GitRepo:
     Type: String
     Description: The URL of the Git repository
+  Owner:
+    Type: String
+    Description: The desiginated owner of the resources
+  Product:
+    Type: String
+    Description: The desiginated product name
   ThumbprintList:
     Type: CommaDelimitedList
     Description: The list of thumbprints to trust
@@ -31,9 +37,9 @@ Resources:
         - Key: GitRepo
           Value: !Ref GitRepo
         - Key: Owner
-          Value: Support
+          Value: !Ref Owner
         - Key: Product
-          Value: LandingZone
+          Value: !Ref Product
         - Key: Provisioner
           Value: CloudFormation
         - Key: aws-cloudformation-stack-id

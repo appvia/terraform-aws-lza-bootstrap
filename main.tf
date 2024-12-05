@@ -73,16 +73,15 @@ resource "aws_cloudformation_stack" "terraform_state_management" {
 
 ## Provision the OIDC provider for GitHub or GitLab within all accounts
 module "oidc_provider" {
-  for_each = toset(var.available_regions)
-  source   = "appvia/stackset/aws"
-  version  = "0.1.2"
+  source  = "appvia/stackset/aws"
+  version = "0.1.2"
 
   capabilities         = local.capabilities
   description          = "Provisions the OIDC provider within all accounts"
   name                 = var.stack_oidc_provider_name
   organizational_units = [local.root_id]
   parameters           = local.oidc_provider_parameters
-  region               = each.key
+  region               = var.home_region
   tags                 = var.tags
   template             = file("${path.module}/assets/cloudformation/oidc-identity.yaml")
 }
@@ -105,22 +104,24 @@ resource "aws_cloudformation_stack" "oidc_provider_management" {
 
 ## Provision the IAM cloud access roles for Github within all accounts
 module "iam_roles_github" {
-  for_each = var.enable_github_integration ? toset(var.available_regions) : []
-  source   = "appvia/stackset/aws"
-  version  = "0.1.2"
+  count   = var.enable_github_integration ? 1 : 0
+  source  = "appvia/stackset/aws"
+  version = "0.1.2"
 
   capabilities         = local.capabilities
   description          = "Provisions the IAM roles required for cloudaccess for Github"
   name                 = var.stack_cicd_iam_roles_name
   organizational_units = [local.root_id]
   parameters           = local.iam_roles_parameters
-  region               = each.key
+  region               = var.home_region
   tags                 = var.tags
   template             = file("${path.module}/assets/cloudformation/github-pipeline-iam.yaml")
 }
 
 ## Deployment of same stack to the management account
 resource "aws_cloudformation_stack" "iam_roles_github_management" {
+  count = var.enable_github_integration ? 1 : 0
+
   capabilities  = local.capabilities
   name          = var.stack_cicd_iam_roles_name
   on_failure    = "ROLLBACK"
@@ -137,22 +138,24 @@ resource "aws_cloudformation_stack" "iam_roles_github_management" {
 
 ## Provision the IAM cloud access roles for Gitlab within all accounts
 module "iam_roles_gitlab" {
-  for_each = var.enable_gitlab_integration ? toset(var.available_regions) : []
-  source   = "appvia/stackset/aws"
-  version  = "0.1.2"
+  count   = var.enable_gitlab_integration ? 1 : 0
+  source  = "appvia/stackset/aws"
+  version = "0.1.2"
 
   capabilities         = local.capabilities
   description          = "Provisions the IAM roles required for cloudaccess for Gitlab"
   name                 = var.stack_cicd_iam_roles_name
   organizational_units = [local.root_id]
   parameters           = local.iam_roles_parameters
-  region               = each.key
+  region               = var.home_region
   tags                 = var.tags
   template             = file("${path.module}/assets/cloudformation/gitlab-pipeline-iam.yaml")
 }
 
 ## Deployment of same stack to the management account
 resource "aws_cloudformation_stack" "iam_roles_gitlab_management" {
+  count = var.enable_gitlab_integration ? 1 : 0
+
   capabilities  = local.capabilities
   name          = var.stack_cicd_iam_roles_name
   on_failure    = "ROLLBACK"

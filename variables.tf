@@ -27,6 +27,11 @@ variable "git_repository" {
   type        = string
 }
 
+variable "home_region" {
+  description = "The AWS region we will use at the home region"
+  type        = string
+}
+
 variable "enable_github_integration" {
   description = "Enable GitHub integration for CI/CD"
   type        = bool

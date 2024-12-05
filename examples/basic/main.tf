@@ -3,19 +3,22 @@
 module "bootstrap_github" {
   source = "../../"
 
-  available_regions         = ["eu-west-1", "eu-west-2", "us-east-1"]
+  available_regions         = ["eu-west-2", "us-east-1"]
   environment               = "Production"
   enable_github_integration = true
   git_repository            = "https://github.com/appvia/tf-aws-bootstrap.git"
   owner                     = "Engineering"
 
+  ## Home region
+  home_region = "eu-west-2"
+
   ## Cloudaccess configuration
-  cloudaccess_repository_name                       = "appvia/tf-aws-cloudaccess"
+  cloudaccess_repository_name                       = "appvia/lz-aws-cloudaccess"
   cloudaccess_role_readonly_name                    = "cloudaccess-ro"
   cloudaccess_role_readwrite_name                   = "cloudaccess"
-  cloudaccess_terraform_state_key                   = "tf-aws-cloudaccess/terraform.tfstate"
-  cloudaccess_terraform_state_readwrite_policy_name = "lza-terraform-state-readwrite"
-  cloudaccess_terraform_state_readonly_policy_name  = "lza-terraform-state-readonly"
+  cloudaccess_terraform_state_key                   = "lz-aws-cloudaccess/terraform.tfstate"
+  cloudaccess_terraform_state_readwrite_policy_name = "lza-terraform-state-rw"
+  cloudaccess_terraform_state_readonly_policy_name  = "lza-terraform-state-ro"
 
   ## Stack names
   stack_cicd_iam_roles_name  = "lza-cicd-iam-roles"

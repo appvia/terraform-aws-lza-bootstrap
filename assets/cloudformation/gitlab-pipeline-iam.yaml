@@ -16,6 +16,12 @@ Parameters:
   GitRepo:
     Description: The URL of the Git repository
     Type: String
+  Owner:
+    Type: String
+    Description: The desiginated owner of the resources
+  Product:
+    Type: String
+    Description: The desiginated product name
   IdentityProviderName:
     Description: The name of the OIDC Identity Provider
     Type: String
@@ -231,9 +237,9 @@ Resources:
         - Key: Provisioner
           Value: CloudFormation
         - Key: Owner
-          Value: Support
+          Value: !Ref Owner
         - Key: Product
-          Value: LandingZone
+          Value: !Ref Product
         - Key: aws-cloudformation-stack-id
           Value: !Ref "AWS::StackId"
         - Key: aws-cloudformation-stack-id
@@ -344,9 +350,9 @@ Resources:
         - Key: Provisioner
           Value: CloudFormation
         - Key: Owner
-          Value: Support
+          Value: !Ref Owner
         - Key: Product
-          Value: LandingZone
+          Value: !Ref Product
         - Key: aws-cloudformation-stack-id
           Value: !Ref "AWS::StackId"
         - Key: aws-cloudformation-stack-id
