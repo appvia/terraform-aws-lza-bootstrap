@@ -13,13 +13,13 @@ locals {
 
   ## Parameters for the OIDC provider stackset
   oidc_provider_parameters = {
-    ClientIdList   = join(",", var.oidc_provider_client_ids)
-    Environment    = var.environment
-    GitRepo        = var.git_repository
-    Owner          = var.owner
-    Product        = var.product
-    ThumbprintList = join(",", var.oidc_provider_thumbprints)
-    Url            = var.oidc_provider_url
+    ClientIdList         = join(",", var.oidc_provider_client_ids)
+    Environment          = var.environment
+    GitRepo              = var.git_repository
+    IdentityProviderName = var.oidc_provider_name
+    Owner                = var.owner
+    Product              = var.product
+    ThumbprintList       = join(",", var.oidc_provider_thumbprints)
   }
 
   ## Parameters for the IAM roles stackset
@@ -28,7 +28,7 @@ locals {
     CloudAccessRoleReadWriteName = var.cloudaccess_role_readwrite_name
     Environment                  = var.environment
     GitRepo                      = var.git_repository
-    IdentityProviderName         = var.oidc_provider_url
+    IdentityProviderName         = var.oidc_provider_name
     Owner                        = var.owner
     Product                      = var.product
     RepositoryName               = var.cloudaccess_repository_name

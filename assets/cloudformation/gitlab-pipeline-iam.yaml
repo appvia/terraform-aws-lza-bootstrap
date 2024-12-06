@@ -60,8 +60,8 @@ Resources:
             Action:
               - s3:ListBucket
             Resource:
-              - "arn:aws:s3:::${AWS::AccountId}-${AWS::Region}-tfstate"
-              - "arn:aws:s3:::${AWS::AccountId}-${AWS::Region}-tfstate/*"
+              - !Sub "arn:aws:s3:::${AWS::AccountId}-${AWS::Region}-tfstate"
+              - !Sub "arn:aws:s3:::${AWS::AccountId}-${AWS::Region}-tfstate/*"
           - Sid: AllowS3Objects
             Effect: Allow
             Action:
@@ -93,8 +93,8 @@ Resources:
             Action:
               - s3:ListBucket
             Resource:
-              - "arn:aws:s3:::${AWS::AccountId}-${AWS::Region}-tfstate"
-              - "arn:aws:s3:::${AWS::AccountId}-${AWS::Region}-tfstate/*"
+              - !Sub "arn:aws:s3:::$${AWS::AccountId}-$${AWS::Region}-tfstate"
+              - !Sub "arn:aws:s3:::$${AWS::AccountId}-$${AWS::Region}-tfstate/*"
           - Sid: AllowS3RemoteState
             Effect: Allow
             Action:

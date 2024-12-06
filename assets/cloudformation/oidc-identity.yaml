@@ -22,9 +22,9 @@ Parameters:
   ThumbprintList:
     Type: CommaDelimitedList
     Description: The list of thumbprints to trust
-  Url:
+  IdentityProviderName:
     Type: String
-    Description: The URL of the OIDC Identity Provider
+    Description: The name of the OIDC Identity Provider
 
 Resources:
   IdentityProvider:
@@ -47,4 +47,4 @@ Resources:
         - Key: aws-cloudformation-stack-name
           Value: !Ref "AWS::StackName"
       ThumbprintList: !Ref ThumbprintList
-      Url: !Ref Url
+      Url: !Sub https://${IdentityProviderName}

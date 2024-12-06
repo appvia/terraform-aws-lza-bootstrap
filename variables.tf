@@ -61,8 +61,8 @@ variable "oidc_provider_client_ids" {
   default     = []
 }
 
-variable "oidc_provider_url" {
-  description = "OIDC provider URL for GitHub or GitLab"
+variable "oidc_provider_name" {
+  description = "OIDC provider name for GitHub or GitLab"
   type        = string
 }
 

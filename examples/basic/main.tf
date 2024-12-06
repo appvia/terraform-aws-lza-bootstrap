@@ -16,7 +16,7 @@ module "bootstrap_github" {
   cloudaccess_repository_name                       = "appvia/lz-aws-cloudaccess"
   cloudaccess_role_readonly_name                    = "cloudaccess-ro"
   cloudaccess_role_readwrite_name                   = "cloudaccess"
-  cloudaccess_terraform_state_key                   = "lz-aws-cloudaccess/terraform.tfstate"
+  cloudaccess_terraform_state_key                   = "lz-aws-cloudaccess.tfstate"
   cloudaccess_terraform_state_readwrite_policy_name = "lza-terraform-state-rw"
   cloudaccess_terraform_state_readonly_policy_name  = "lza-terraform-state-ro"
 
@@ -26,7 +26,7 @@ module "bootstrap_github" {
   stack_terraform_state_name = "lza-terraform-state"
 
   ## OIDC provider thumbprints for GitHub
-  oidc_provider_url = "https://token.actions.githubusercontent.com"
+  oidc_provider_name = "token.actions.githubusercontent.com"
   oidc_provider_thumbprints = [
     "6938fd4d98bab03faadb97b34396831e3780aea1",
     "1c58a3a8518e8759bf075b76b750d4f2df264fcd",
