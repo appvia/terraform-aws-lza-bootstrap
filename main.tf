@@ -42,7 +42,7 @@ locals {
 ## deployed as a stackset to all accounts.
 module "terraform_state" {
   source  = "appvia/stackset/aws"
-  version = "0.1.3"
+  version = "0.1.6"
 
   capabilities         = local.capabilities
   description          = "Provisions the Terraform state bucket and DynamoDB table within all accounts"
@@ -74,7 +74,7 @@ resource "aws_cloudformation_stack" "terraform_state_management" {
 ## Provision the OIDC provider for GitHub or GitLab within all accounts
 module "oidc_provider" {
   source  = "appvia/stackset/aws"
-  version = "0.1.3"
+  version = "0.1.6"
 
   capabilities         = local.capabilities
   description          = "Provisions the OIDC provider within all accounts"
@@ -106,7 +106,7 @@ resource "aws_cloudformation_stack" "oidc_provider_management" {
 module "iam_roles_github" {
   count   = var.enable_github_integration ? 1 : 0
   source  = "appvia/stackset/aws"
-  version = "0.1.3"
+  version = "0.1.6"
 
   capabilities         = local.capabilities
   description          = "Provisions the IAM roles required for cloudaccess for Github"
@@ -140,7 +140,7 @@ resource "aws_cloudformation_stack" "iam_roles_github_management" {
 module "iam_roles_gitlab" {
   count   = var.enable_gitlab_integration ? 1 : 0
   source  = "appvia/stackset/aws"
-  version = "0.1.3"
+  version = "0.1.6"
 
   capabilities         = local.capabilities
   description          = "Provisions the IAM roles required for cloudaccess for Gitlab"
