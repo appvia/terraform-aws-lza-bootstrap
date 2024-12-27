@@ -1,13 +1,12 @@
 <!-- markdownlint-disable -->
-
-<a href="https://www.appvia.io/"><img src="./appvia_banner.jpg" alt="Appvia Banner"/></a><br/><p align="right"> </a> <a href="https://github.com/appvia/terraform-aws-module-template/releases/latest"><img src="https://img.shields.io/github/release/appvia/terraform-aws-module-template.svg?style=for-the-badge&color=006400" alt="Latest Release"/></a> <a href="https://appvia-community.slack.com/join/shared_invite/zt-1s7i7xy85-T155drryqU56emm09ojMVA#/shared-invite/email"><img src="https://img.shields.io/badge/Slack-Join%20Community-purple?style=for-the-badge&logo=slack" alt="Slack Community"/></a> <a href="https://github.com/appvia/terraform-aws-module-template/graphs/contributors"><img src="https://img.shields.io/github/contributors/appvia/terraform-aws-module-template.svg?style=for-the-badge&color=FF8C00" alt="Contributors"/></a>
+<a href="https://www.appvia.io/"><img src="https://github.com/appvia/terraform-aws-lza-bootstrap/blob/main/appvia_banner.jpg?raw=true" alt="Appvia Banner"/></a><br/><p align="right"> <a href="https://registry.terraform.io/modules/appvia/lza-bootstrap/aws/latest"><img src="https://img.shields.io/static/v1?label=APPVIA&message=Terraform%20Registry&color=191970&style=for-the-badge" alt="Terraform Registry"/></a></a> <a href="https://github.com/appvia/terraform-aws-lza-bootstrap/releases/latest"><img src="https://img.shields.io/github/release/appvia/terraform-aws-lza-bootstrap.svg?style=for-the-badge&color=006400" alt="Latest Release"/></a> <a href="https://appvia-community.slack.com/join/shared_invite/zt-1s7i7xy85-T155drryqU56emm09ojMVA#/shared-invite/email"><img src="https://img.shields.io/badge/Slack-Join%20Community-purple?style=for-the-badge&logo=slack" alt="Slack Community"/></a> <a href="https://github.com/appvia/terraform-aws-lza-bootstrap/graphs/contributors"><img src="https://img.shields.io/github/contributors/appvia/terraform-aws-lza-bootstrap.svg?style=for-the-badge&color=FF8C00" alt="Contributors"/></a>
 
 <!-- markdownlint-restore -->
 <!--
   ***** CAUTION: DO NOT EDIT ABOVE THIS LINE ******
 -->
 
-![Github Actions](../../actions/workflows/terraform.yml/badge.svg)
+![Github Actions](https://github.com/appvia/terraform-aws-lza-bootstrap/actions/workflows/terraform.yml/badge.svg)
 
 # Terraform AWS LZA Bootstrap Module
 
