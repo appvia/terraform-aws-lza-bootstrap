@@ -34,6 +34,11 @@ Resources:
               SSEAlgorithm: AES256
       VersioningConfiguration:
         Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteNonCurrentVersions
+            Status: Enabled
+            NoncurrentVersionExpirationInDays: 30
       Tags:
         - Key: Environment
           Value: !Ref Environment
