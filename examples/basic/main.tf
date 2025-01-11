@@ -4,10 +4,7 @@ module "bootstrap_github" {
   source = "../../"
 
   available_regions         = ["eu-west-2", "us-east-1"]
-  environment               = "Production"
   enable_github_integration = true
-  git_repository            = "https://github.com/appvia/tf-aws-bootstrap.git"
-  owner                     = "Engineering"
 
   ## Home region
   home_region = "eu-west-2"

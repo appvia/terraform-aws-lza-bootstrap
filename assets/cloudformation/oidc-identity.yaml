@@ -6,19 +6,6 @@ Parameters:
   ClientIdList:
     Type: CommaDelimitedList
     Description: The list of Client IDs to trust
-  Environment:
-    Type: String
-    Description: The name of the environment
-    Default: Production
-  GitRepo:
-    Type: String
-    Description: The URL of the Git repository
-  Owner:
-    Type: String
-    Description: The desiginated owner of the resources
-  Product:
-    Type: String
-    Description: The desiginated product name
   ThumbprintList:
     Type: CommaDelimitedList
     Description: The list of thumbprints to trust
@@ -32,19 +19,13 @@ Resources:
     Properties:
       ClientIdList: !Ref ClientIdList
       Tags:
-        - Key: Environment
-          Value: !Ref Environment
-        - Key: GitRepo
-          Value: !Ref GitRepo
-        - Key: Owner
-          Value: !Ref Owner
-        - Key: Product
-          Value: !Ref Product
-        - Key: Provisioner
-          Value: CloudFormation
+        %{ for key, value in tags ~}
+        - Key: ${key}
+          Value: ${value}
+        %{ endfor ~}
         - Key: aws-cloudformation-stack-id
           Value: !Ref "AWS::StackId"
         - Key: aws-cloudformation-stack-name
           Value: !Ref "AWS::StackName"
       ThumbprintList: !Ref ThumbprintList
-      Url: !Sub https://${IdentityProviderName}
+      Url: !Sub https://$${IdentityProviderName}
