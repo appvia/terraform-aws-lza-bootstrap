@@ -2,26 +2,11 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Create an S3 Bucket and DynamoDB Table for Terraform Remote State
 
-Parameters:
-  Environment:
-    Type: String
-    Description: The name of the environment
-    Default: Production
-  GitRepo:
-    Type: String
-    Description: The URL of the Git repository
-  Owner:
-    Type: String
-    Description: The desiginated owner of the resources
-  Product:
-    Type: String
-    Description: The desiginated product name
-
 Resources:
   TerraformStateS3Bucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub "${AWS::AccountId}-${AWS::Region}-tfstate"
+      BucketName: !Sub "$${AWS::AccountId}-$${AWS::Region}-tfstate"
       AccessControl: Private
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
@@ -40,16 +25,10 @@ Resources:
             Status: Enabled
             NoncurrentVersionExpirationInDays: 30
       Tags:
-        - Key: Environment
-          Value: !Ref Environment
-        - Key: GitRepo
-          Value: !Ref GitRepo
-        - Key: Owner
-          Value: !Ref Owner
-        - Key: Provisioner
-          Value: CloudFormation
-        - Key: Product
-          Value: !Ref Product
+        %{ for key, value in tags ~}
+        - Key: ${key}
+          Value: ${value}
+        %{ endfor ~}
         - Key: aws-cloudformation-stack-id
           Value: !Ref "AWS::StackId"
         - Key: aws-cloudformation-stack-name
@@ -67,18 +46,12 @@ Resources:
           KeyType: HASH
       SSESpecification:
         SSEEnabled: true
-      TableName: !Sub "${AWS::AccountId}-${AWS::Region}-tflock"
+      TableName: !Sub "$${AWS::AccountId}-$${AWS::Region}-tflock"
       Tags:
-        - Key: Environment
-          Value: !Ref Environment
-        - Key: GitRepo
-          Value: !Ref GitRepo
-        - Key: Owner
-          Value: !Ref Owner
-        - Key: Product
-          Value: !Ref Product
-        - Key: Provisioner
-          Value: CloudFormation
+        %{ for key, value in tags ~}
+        - Key: ${key}
+          Value: ${value}
+        %{ endfor ~}
         - Key: aws-cloudformation-stack-id
           Value: !Ref "AWS::StackId"
         - Key: aws-cloudformation-stack-name

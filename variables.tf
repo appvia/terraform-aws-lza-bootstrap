@@ -1,30 +1,7 @@
 
 variable "tags" {
   description = "Tags to apply to all resources"
-  type        = map(any)
-}
-
-variable "environment" {
-  description = "Environment to deploy resources"
-  type        = string
-  default     = "Production"
-}
-
-variable "owner" {
-  description = "Owner of the resources"
-  type        = string
-  default     = "Engineering"
-}
-
-variable "product" {
-  description = "The product resource tag used on the resources"
-  type        = string
-  default     = "LandingZone"
-}
-
-variable "git_repository" {
-  description = "Git repository URL"
-  type        = string
+  type        = map(string)
 }
 
 variable "home_region" {
