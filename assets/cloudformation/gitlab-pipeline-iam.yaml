@@ -217,16 +217,12 @@ Resources:
                   - "lambda:UpdateFunctionConfiguration"
                 Resource: "*"
       Tags:
-        - Key: Environment
-          Value: !Ref Environment
-        - Key: GitRepo
-          Value: !Ref GitRepo
+%{ for key, value in tags ~}
+        - Key: ${key}
+          Value: ${value}
+%{ endfor ~}
         - Key: Provisioner
           Value: CloudFormation
-        - Key: Owner
-          Value: !Ref Owner
-        - Key: Product
-          Value: !Ref Product
         - Key: aws-cloudformation-stack-id
           Value: !Ref "AWS::StackId"
         - Key: aws-cloudformation-stack-id
@@ -330,10 +326,10 @@ Resources:
                   - "lambda:List*"
                 Resource: "*"
       Tags:
-        %{ for key, value in tags }
+%{ for key, value in tags ~}
         - Key: ${key}
           Value: ${value}
-        %{ endfor }
+%{ endfor ~}
         - Key: aws-cloudformation-stack-id
           Value: !Ref "AWS::StackId"
         - Key: aws-cloudformation-stack-id

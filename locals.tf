@@ -3,7 +3,7 @@ locals {
   ## Organizational root id
   root_id = data.aws_organizations_organization.current.roots[0].id
 
-    ## Stack capabilities
+  ## Stack capabilities
   capabilities = ["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM", "CAPABILITY_AUTO_EXPAND"]
 
   ## Terraform State StackSet Parameters
@@ -28,9 +28,5 @@ locals {
   }
 
   ## Tags applied to the stackset and the resources it creates
-  tags = merge(var.tags, {
-    git_repository = var.git_repository,
-    enviroment = var.environment,
-    owner = var.owner
-  }) 
+  tags = merge(var.tags, {})
 }

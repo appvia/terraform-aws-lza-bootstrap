@@ -35,7 +35,7 @@ module "bootstrap_github" {
 
   tags = {
     Environment = "Production"
-    GitRepo     = "https://github.com/appvia/tf-aws-bootstrap.git"
+    GitRepo     = "https://github.com/appvia/lz-aws-bootstrap"
     Owner       = "Engineering"
     Product     = "LandingZone"
   }
