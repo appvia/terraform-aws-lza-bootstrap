@@ -19,10 +19,10 @@ Resources:
     Properties:
       ClientIdList: !Ref ClientIdList
       Tags:
-        %{ for key, value in tags ~}
+%{ for key, value in tags ~}
         - Key: ${key}
           Value: ${value}
-        %{ endfor ~}
+%{ endfor ~}
         - Key: aws-cloudformation-stack-id
           Value: !Ref "AWS::StackId"
         - Key: aws-cloudformation-stack-name

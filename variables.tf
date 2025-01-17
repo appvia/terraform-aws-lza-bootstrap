@@ -4,6 +4,22 @@ variable "tags" {
   type        = map(string)
 }
 
+variable "environment" {
+  description = "Value for the environment tag"
+  type        = string
+  default     = "Production"
+}
+
+variable "owner" {
+  description = "The owner of the landing zone"
+  type        = string
+}
+
+variable "git_repository" {
+  description = "The URL of the GitHub repository"
+  type        = string
+}
+
 variable "home_region" {
   description = "The AWS region we will use at the home region"
   type        = string

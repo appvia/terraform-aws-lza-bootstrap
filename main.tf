@@ -1,30 +1,3 @@
-
-locals {
-  ## Stack capabilities
-  capabilities = ["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM", "CAPABILITY_AUTO_EXPAND"]
-
-  ## Terraform State StackSet Parameters
-  terraform_state_parameters = {}
-
-  ## Parameters for the OIDC provider stackset
-  oidc_provider_parameters = {
-    ClientIdList         = join(",", var.oidc_provider_client_ids)
-    IdentityProviderName = var.oidc_provider_name
-    ThumbprintList       = join(",", var.oidc_provider_thumbprints)
-  }
-
-  ## Parameters for the IAM roles stackset
-  iam_roles_parameters = {
-    CloudAccessRoleReadOnlyName  = var.cloudaccess_role_readonly_name
-    CloudAccessRoleReadWriteName = var.cloudaccess_role_readwrite_name
-    IdentityProviderName         = var.oidc_provider_name
-    RepositoryName               = var.cloudaccess_repository_name
-    TerraformStateKey            = var.cloudaccess_terraform_state_key
-    TerraformStateROPolicyName   = var.cloudaccess_terraform_state_readonly_policy_name
-    TerraformStateRWPolicyName   = var.cloudaccess_terraform_state_readwrite_policy_name
-  }
-}
-
 ## Provision the terraform state dependencies within all accounts. This is
 ## deployed as a stackset to all accounts.
 module "terraform_state" {
@@ -38,10 +11,10 @@ module "terraform_state" {
   organizational_units = [local.root_id]
   parameters           = local.terraform_state_parameters
   region               = var.home_region
-  tags                 = var.tags
+  tags                 = local.tags
 
   template = templatefile("${path.module}/assets/cloudformation/terraform-state.yaml", {
-    tags = var.tags
+    tags = local.tags
   })
 }
 
@@ -51,10 +24,10 @@ resource "aws_cloudformation_stack" "terraform_state_management" {
   name         = var.stack_terraform_state_name
   on_failure   = "ROLLBACK"
   parameters   = local.terraform_state_parameters
-  tags         = var.tags
+  tags         = local.tags
 
   template_body = templatefile("${path.module}/assets/cloudformation/terraform-state.yaml", {
-    tags = var.tags
+    tags = local.tags
   })
 
   lifecycle {
@@ -75,10 +48,10 @@ module "oidc_provider" {
   organizational_units = [local.root_id]
   parameters           = local.oidc_provider_parameters
   region               = var.home_region
-  tags                 = var.tags
+  tags                 = local.tags
 
   template = templatefile("${path.module}/assets/cloudformation/oidc-identity.yaml", {
-    tags = var.tags
+    tags = local.tags
   })
 }
 
@@ -88,10 +61,10 @@ resource "aws_cloudformation_stack" "oidc_provider_management" {
   name         = var.stack_oidc_provider_name
   on_failure   = "ROLLBACK"
   parameters   = local.oidc_provider_parameters
-  tags         = var.tags
+  tags         = local.tags
 
   template_body = templatefile("${path.module}/assets/cloudformation/oidc-identity.yaml", {
-    tags = var.tags
+    tags = local.tags
   })
 
   lifecycle {
