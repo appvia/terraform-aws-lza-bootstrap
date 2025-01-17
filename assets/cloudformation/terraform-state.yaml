@@ -25,10 +25,10 @@ Resources:
             Status: Enabled
             NoncurrentVersionExpirationInDays: 30
       Tags:
-        %{ for key, value in tags ~}
+%{ for key, value in tags ~}
         - Key: ${key}
           Value: ${value}
-        %{ endfor ~}
+%{ endfor ~}
         - Key: aws-cloudformation-stack-id
           Value: !Ref "AWS::StackId"
         - Key: aws-cloudformation-stack-name
@@ -48,10 +48,10 @@ Resources:
         SSEEnabled: true
       TableName: !Sub "$${AWS::AccountId}-$${AWS::Region}-tflock"
       Tags:
-        %{ for key, value in tags ~}
+%{ for key, value in tags ~}
         - Key: ${key}
           Value: ${value}
-        %{ endfor ~}
+%{ endfor ~}
         - Key: aws-cloudformation-stack-id
           Value: !Ref "AWS::StackId"
         - Key: aws-cloudformation-stack-name
