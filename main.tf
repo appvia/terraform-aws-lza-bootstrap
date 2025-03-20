@@ -5,7 +5,7 @@ module "terraform_state" {
   version = "0.2.2"
 
   capabilities         = local.capabilities
-  description          = "Provisions the Terraform state bucket and DynamoDB table within all accounts"
+  description          = "Provisions the Terraform state bucket within all accounts"
   enabled_regions      = var.available_regions
   name                 = var.stack_terraform_state_name
   organizational_units = [local.root_id]
