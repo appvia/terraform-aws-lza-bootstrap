@@ -33,15 +33,6 @@ Resources:
       PolicyDocument:
         Version: 2012-10-17
         Statement:
-          - Sid: AllowDynamoDB
-            Effect: Allow
-            Action:
-              - dynamodb:DeleteItem
-              - dynamodb:DescribeTable
-              - dynamodb:GetItem
-              - dynamodb:PutItem
-            Resource:
-              - !Sub "arn:aws:dynamodb:*:$${AWS::AccountId}:table/$${AWS::AccountId}-$${AWS:Region}-tflock"
           - Sid: AllowS3Buckets
             Effect: Allow
             Action:
@@ -58,6 +49,7 @@ Resources:
               - s3:PutObject
             Resource:
               - !Sub "arn:aws:s3:::$${AWS::AccountId}-$${AWS:Region}-tfstate/$${TerraformStateKey}"
+              - !Sub "arn:aws:s3:::$${AWS::AccountId}-$${AWS:Region}-tfstate/$${TerraformStateKey}.tflock"
 
   TFStatePolicyReadOnly:
     Type: "AWS::IAM::ManagedPolicy"
@@ -66,15 +58,6 @@ Resources:
       PolicyDocument:
         Version: 2012-10-17
         Statement:
-          - Sid: AllowDynamoDB
-            Effect: Allow
-            Action:
-              - dynamodb:DeleteItem
-              - dynamodb:DescribeTable
-              - dynamodb:GetItem
-              - dynamodb:PutItem
-            Resource:
-              - !Sub "arn:aws:dynamodb:*:$${AWS::AccountId}:table/$${AWS::AccountId}-$${AWS:Region}-tflock"
           - Sid: AllowS3Buckets
             Effect: Allow
             Action:
@@ -85,10 +68,20 @@ Resources:
           - Sid: AllowS3RemoteState
             Effect: Allow
             Action:
+              - s3:HeadObject
               - s3:GetObject
               - s3:ListBucket
             Resource:
               - !Sub "arn:aws:s3:::$${AWS::AccountId}-$${AWS:Region}-tfstate/$${TerraformStateKey}"
+          - Sid: AllowS3Objects
+            Effect: Allow
+            Action:
+              - s3:DeleteObject
+              - s3:GetObject
+              - s3:ListBucket
+              - s3:PutObject
+            Resource:
+              - !Sub "arn:aws:s3:::$${AWS::AccountId}-$${AWS:Region}-tfstate/$${TerraformStateKey}.tflock"
 
   CloudAccessRoleReadWrite:
     Type: AWS::IAM::Role

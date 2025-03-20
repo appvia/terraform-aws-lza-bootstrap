@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Create an S3 Bucket and DynamoDB Table for Terraform Remote State
+Description: Create an S3 Bucket for Terraform Remote State
 
 Resources:
   TerraformStateS3Bucket:
@@ -24,29 +24,6 @@ Resources:
           - Id: DeleteNonCurrentVersions
             Status: Enabled
             NoncurrentVersionExpirationInDays: 30
-      Tags:
-%{ for key, value in tags ~}
-        - Key: ${key}
-          Value: ${value}
-%{ endfor ~}
-        - Key: aws-cloudformation-stack-id
-          Value: !Ref "AWS::StackId"
-        - Key: aws-cloudformation-stack-name
-          Value: !Ref "AWS::StackName"
-
-  TerraformStateLockDynamoDBTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      BillingMode: PAY_PER_REQUEST
-      AttributeDefinitions:
-        - AttributeName: LockID
-          AttributeType: S
-      KeySchema:
-        - AttributeName: LockID
-          KeyType: HASH
-      SSESpecification:
-        SSEEnabled: true
-      TableName: !Sub "$${AWS::AccountId}-$${AWS::Region}-tflock"
       Tags:
 %{ for key, value in tags ~}
         - Key: ${key}
