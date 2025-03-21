@@ -41,7 +41,7 @@ resource "aws_cloudformation_stack" "terraform_state_management" {
 ## Provision the OIDC provider for GitHub or GitLab within all accounts
 module "oidc_provider" {
   source  = "appvia/stackset/aws"
-  version = "0.2.3"
+  version = "0.2.2"
 
   capabilities         = local.capabilities
   description          = "Provisions the OIDC provider within all accounts"
@@ -80,7 +80,7 @@ resource "aws_cloudformation_stack" "oidc_provider_management" {
 module "iam_roles_github" {
   count   = var.enable_github_integration ? 1 : 0
   source  = "appvia/stackset/aws"
-  version = "0.2.3"
+  version = "0.2.2"
 
   capabilities         = local.capabilities
   description          = "Provisions the IAM roles required for cloudaccess for Github"
