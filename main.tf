@@ -10,6 +10,7 @@ module "terraform_state" {
   name                 = var.stack_terraform_state_name
   organizational_units = [local.root_id]
   parameters           = local.terraform_state_parameters
+  permission_model     = "SELF_MANAGED"
   region               = var.home_region
   tags                 = local.tags
 
@@ -47,6 +48,7 @@ module "oidc_provider" {
   name                 = var.stack_oidc_provider_name
   organizational_units = [local.root_id]
   parameters           = local.oidc_provider_parameters
+  permission_model     = "SELF_MANAGED"
   region               = var.home_region
   tags                 = local.tags
 
@@ -85,6 +87,7 @@ module "iam_roles_github" {
   name                 = var.stack_cicd_iam_roles_name
   organizational_units = [local.root_id]
   parameters           = local.iam_roles_parameters
+  permission_model     = "SELF_MANAGED"
   region               = var.home_region
   tags                 = var.tags
 
@@ -125,6 +128,7 @@ module "iam_roles_gitlab" {
   name                 = var.stack_cicd_iam_roles_name
   organizational_units = [local.root_id]
   parameters           = local.iam_roles_parameters
+  permission_model     = "SELF_MANAGED"
   region               = var.home_region
   tags                 = var.tags
 
