@@ -30,7 +30,6 @@ module "bootstrap_github" {
   ]
   oidc_provider_client_ids = [
     "sts.amazonaws.com",
-    "https://github.com/appvia",
   ]
 
   tags = {
