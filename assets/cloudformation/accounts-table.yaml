@@ -15,10 +15,6 @@ Parameters:
     Type: String
     Description: The billing mode of the DynamoDB table
     Default: PAY_PER_REQUEST
-  EnableEncryption:
-    Type: Boolean
-    Description: Whether to enable encryption for the DynamoDB table
-    Default: true
 
 Resources:
   # Ensure the table is
@@ -58,4 +54,4 @@ Resources:
         - Key: aws-cloudformation-stack-name
           Value: !Ref "AWS::StackName"
       SSESpecification:
-        SSEEnabled: !Ref EnableEncryption
+        SSEEnabled: true
