@@ -16,6 +16,10 @@ Parameters:
     Description: The billing mode of the DynamoDB table
     Default: PAY_PER_REQUEST
 
+Outputs:
+  AccountsTableArn:
+    Value: !GetAtt AccountsTable.Arn
+
 Resources:
   # Ensure the table is
   # - Created with on-demand billing
