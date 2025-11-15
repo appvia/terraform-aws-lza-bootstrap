@@ -42,15 +42,19 @@ Resources:
             - Sid: AllowAccountRoot
               Effect: Allow
               Principal:
-                AWS: !Sub "arn:aws:iam::$${AWS::AccountId}:root"
+                AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
               Action: dynamodb:*
               Resource:
-                - !Sub "arn:aws:dynamodb:$${AWS::Region}:$${AWS::AccountId}:table/$${AccountsTableName}"
+                - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${AccountsTableName}"
       Tags:
-%{ for key, value in tags ~}
-        - Key: ${key}
-          Value: ${value}
-%{ endfor ~}
+        - Key: Environment
+          Value: Production
+        - Key: GitRepo
+          Value: https://github.com/appvia-lz-aws/lz-aws-bootstrap
+        - Key: Owner
+          Value: Engineering
+        - Key: Product
+          Value: LandingZone
         - Key: aws-cloudformation-stack-id
           Value: !Ref "AWS::StackId"
         - Key: aws-cloudformation-stack-name
