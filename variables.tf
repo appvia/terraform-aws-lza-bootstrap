@@ -84,6 +84,12 @@ variable "stack_terraform_state_name" {
   default     = "lza-terraform-state"
 }
 
+variable "stack_accounts_table_name" {
+  description = "Is the name of the stackset used to provision the accounts table resources"
+  type        = string
+  default     = "lza-accounts-table"
+}
+
 variable "stack_oidc_provider_name" {
   description = "Is the name of the stackset used to provision the OIDC provider resources"
   type        = string

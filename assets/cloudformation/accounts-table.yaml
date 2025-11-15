@@ -21,7 +21,7 @@ Parameters:
     Default: true
 
 Resources:
-  # Ensure the table is 
+  # Ensure the table is
   # - Created with on-demand billing
   # - Has a hash key of account_name
   # - Is accessible by the account root user
@@ -44,10 +44,10 @@ Resources:
           - Sid: AllowAccountRoot
             Effect: Allow
             Principal:
-              AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+              AWS: !Sub "arn:aws:iam::$${AWS::AccountId}:root"
             Action: dynamodb:*
             Resource:
-              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${AccountsTableName}"
+              - !Sub "arn:aws:dynamodb:$${AWS::Region}:$${AWS::AccountId}:table/$${AccountsTableName}"
       Tags:
 %{ for key, value in tags ~}
         - Key: ${key}
