@@ -9,6 +9,13 @@ locals {
   ## Terraform State StackSet Parameters
   terraform_state_parameters = {}
 
+  ## Accounts Table Parameters
+  accounts_table_parameters = {
+    AccountsTableName        = "lz-aws-accounts"
+    AccountsTableNameHashKey = "account_name"
+    BillingMode              = "PAY_PER_REQUEST"
+  }
+
   ## Parameters for the OIDC provider stackset
   oidc_provider_parameters = {
     ClientIdList         = join(",", var.oidc_provider_client_ids)

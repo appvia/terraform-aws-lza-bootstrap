@@ -18,6 +18,25 @@ module "terraform_state" {
   })
 }
 
+## Provision the accounts table within the management account
+resource "aws_cloudformation_stack" "accounts_table_management" {
+  capabilities = local.capabilities
+  name         = var.stack_accounts_table_name
+  on_failure   = "ROLLBACK"
+  parameters   = local.accounts_table_parameters
+  tags         = local.tags
+
+  template_body = templatefile("${path.module}/assets/cloudformation/accounts-table.yaml", {
+    tags = local.tags
+  })
+
+  lifecycle {
+    ignore_changes = [
+      capabilities,
+    ]
+  }
+}
+
 ## Deployment of same stack to the management account
 resource "aws_cloudformation_stack" "terraform_state_management" {
   capabilities = local.capabilities

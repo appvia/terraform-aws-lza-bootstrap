@@ -1,0 +1,61 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Provisions the DynamoDB table used to track account provisioning requests
+
+Parameters:
+  AccountsTableName:
+    Type: String
+    Description: The name of the DynamoDB table to create
+    Default: lz-aws-accounts
+  AccountsTableNameHashKey:
+    Type: String
+    Description: The name of the hash key for the DynamoDB table
+    Default: account_name
+  BillingMode:
+    Type: String
+    Description: The billing mode of the DynamoDB table
+    Default: PAY_PER_REQUEST
+  EnableEncryption:
+    Type: Boolean
+    Description: Whether to enable encryption for the DynamoDB table
+    Default: true
+
+Resources:
+  # Ensure the table is 
+  # - Created with on-demand billing
+  # - Has a hash key of account_name
+  # - Is accessible by the account root user
+  # - Has tags applied to the table
+  # - Is encrypted using AWS managed KMS key
+
+  AccountsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: !Ref BillingMode
+      TableName: !Ref AccountsTableName
+      AttributeDefinitions:
+        - AttributeName: !Ref AccountsTableNameHashKey
+          AttributeType: S
+      KeySchema:
+        - AttributeName: !Ref AccountsTableNameHashKey
+          KeyType: HASH
+      ResourcePolicy:
+        Statement:
+          - Sid: AllowAccountRoot
+            Effect: Allow
+            Principal:
+              AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+            Action: dynamodb:*
+            Resource:
+              - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${AccountsTableName}"
+      Tags:
+%{ for key, value in tags ~}
+        - Key: ${key}
+          Value: ${value}
+%{ endfor ~}
+        - Key: aws-cloudformation-stack-id
+          Value: !Ref "AWS::StackId"
+        - Key: aws-cloudformation-stack-name
+          Value: !Ref "AWS::StackName"
+      SSESpecification:
+        SSEEnabled: !Ref EnableEncryption
