@@ -214,6 +214,8 @@ Resources:
         - Key: ${key}
           Value: ${value}
 %{ endfor ~}
+        - Key: Name 
+          Value: !Ref CloudAccessRoleReadWriteName
         - Key: Provisioner
           Value: CloudFormation
         - Key: aws-cloudformation-stack-id
@@ -323,6 +325,8 @@ Resources:
         - Key: ${key}
           Value: ${value}
 %{ endfor ~}
+        - Key: Name 
+          Value: !Ref CloudAccessRoleReadOnlyName
         - Key: aws-cloudformation-stack-id
           Value: !Ref "AWS::StackId"
         - Key: aws-cloudformation-stack-id
