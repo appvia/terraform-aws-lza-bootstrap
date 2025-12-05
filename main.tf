@@ -11,7 +11,7 @@ module "terraform_state" {
   organizational_units = [local.root_id]
   parameters           = local.terraform_state_parameters
   region               = var.home_region
-  tags                 = local.tags
+  tags                 = merge(local.tags, { "Name" = var.stack_terraform_state_name })
 
   template = templatefile("${path.module}/assets/cloudformation/terraform-state.yaml", {
     tags = local.tags
@@ -24,7 +24,7 @@ resource "aws_cloudformation_stack" "accounts_table_management" {
   name         = var.stack_accounts_table_name
   on_failure   = "ROLLBACK"
   parameters   = local.accounts_table_parameters
-  tags         = local.tags
+  tags         = merge(local.tags, { "Name" = var.stack_accounts_table_name })
 
   template_body = templatefile("${path.module}/assets/cloudformation/accounts-table.yaml", {
     tags = local.tags
@@ -43,7 +43,7 @@ resource "aws_cloudformation_stack" "terraform_state_management" {
   name         = var.stack_terraform_state_name
   on_failure   = "ROLLBACK"
   parameters   = local.terraform_state_parameters
-  tags         = local.tags
+  tags         = merge(local.tags, { "Name" = var.stack_terraform_state_name })
 
   template_body = templatefile("${path.module}/assets/cloudformation/terraform-state.yaml", {
     tags = local.tags
@@ -67,7 +67,7 @@ module "oidc_provider" {
   organizational_units = [local.root_id]
   parameters           = local.oidc_provider_parameters
   region               = var.home_region
-  tags                 = local.tags
+  tags                 = merge(local.tags, { "Name" = var.stack_oidc_provider_name })
 
   template = templatefile("${path.module}/assets/cloudformation/oidc-identity.yaml", {
     tags = local.tags
@@ -80,7 +80,7 @@ resource "aws_cloudformation_stack" "oidc_provider_management" {
   name         = var.stack_oidc_provider_name
   on_failure   = "ROLLBACK"
   parameters   = local.oidc_provider_parameters
-  tags         = local.tags
+  tags         = merge(local.tags, { "Name" = var.stack_oidc_provider_name })
 
   template_body = templatefile("${path.module}/assets/cloudformation/oidc-identity.yaml", {
     tags = local.tags
@@ -105,7 +105,7 @@ module "iam_roles_github" {
   organizational_units = [local.root_id]
   parameters           = local.iam_roles_parameters
   region               = var.home_region
-  tags                 = var.tags
+  tags                 = merge(local.tags, { "Name" = var.stack_cicd_iam_roles_name })
 
   template = templatefile("${path.module}/assets/cloudformation/github-pipeline-iam.yaml", {
     tags = var.tags
@@ -120,7 +120,7 @@ resource "aws_cloudformation_stack" "iam_roles_github_management" {
   name         = var.stack_cicd_iam_roles_name
   on_failure   = "ROLLBACK"
   parameters   = local.iam_roles_parameters
-  tags         = var.tags
+  tags         = merge(local.tags, { "Name" = var.stack_cicd_iam_roles_name })
 
   template_body = templatefile("${path.module}/assets/cloudformation/github-pipeline-iam.yaml", {
     tags = var.tags
@@ -145,7 +145,7 @@ module "iam_roles_gitlab" {
   organizational_units = [local.root_id]
   parameters           = local.iam_roles_parameters
   region               = var.home_region
-  tags                 = var.tags
+  tags                 = merge(local.tags, { "Name" = var.stack_cicd_iam_roles_name })
 
   template = templatefile("${path.module}/assets/cloudformation/gitlab-pipeline-iam.yaml", {
     tags = var.tags
@@ -160,7 +160,7 @@ resource "aws_cloudformation_stack" "iam_roles_gitlab_management" {
   name         = var.stack_cicd_iam_roles_name
   on_failure   = "ROLLBACK"
   parameters   = local.iam_roles_parameters
-  tags         = var.tags
+  tags         = merge(local.tags, { "Name" = var.stack_cicd_iam_roles_name })
 
   template_body = templatefile("${path.module}/assets/cloudformation/gitlab-pipeline-iam.yaml", {
     tags = var.tags
