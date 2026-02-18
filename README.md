@@ -10,22 +10,121 @@
 
 # Terraform AWS LZA Bootstrap Module
 
-## Description
+## Introduction
 
-The purpose of this module is to provide a bootstrap module for getting a landing zone within a initial configurable state. This module will create the following resources:
+Bootstrap your AWS Landing Zone Accelerator (LZA) foundations with a single, repeatable workflow. This module solves the "day-zero" problem of standing up shared Terraform state, CI/CD identity, and CloudAccess roles across a multi-account AWS Organization, so subsequent landing zone modules can deploy consistently.
 
-- Terraform State Dependencies
-- Terraform IAM Policies
-- Cloudaccess IAM Roles & Policies
+At a high level, it orchestrates CloudFormation StackSets for organization-wide resources (Terraform state, OIDC provider, CI/CD IAM roles) and mirrors key stacks into the management account to keep local operations consistent. It is designed for multi-account, multi-region landing zone strategies where a central management account drives shared platform services.
 
-Once provisioned we can utilize the landing zone to deploy further resources.
+## Features
 
-## Usage
+- Secure bootstrap for organization-wide Terraform state, with standardized stack names and tags.
+- Centralized CI/CD identity and access through OIDC providers (GitHub or GitLab).
+- CloudAccess role provisioning for read-only and read-write workflows.
+- Multi-account rollout using StackSets with management account parity.
+- Configurable per-organization naming and tagging to align with platform conventions.
 
-a) Firstly we need to ensure "Trusted Access" is permitted within Cloudformation, see https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/stacksets-orgs-activate-trusted-access.html
-b) Run the pipeline locally to provision the resources
-c) Once the resources are provisioned, we can push the local terraform state to the S3 bucket.
-d) Move the pipeline under CI/CD
+## Usage Gallery
+
+### Golden Path (Simple)
+
+Most common deployment: GitHub OIDC with a minimal set of overrides.
+
+```hcl
+module "lza_bootstrap" {
+  source = "appvia/lza-bootstrap/aws"
+
+  home_region         = "eu-west-2"
+  available_regions   = ["eu-west-2", "us-east-1"]
+  enable_github_integration = true
+
+  oidc_provider_name        = "token.actions.githubusercontent.com"
+  oidc_provider_thumbprints = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
+  oidc_provider_client_ids  = ["sts.amazonaws.com"]
+
+  cloudaccess_repository_name = "appvia/lz-aws-cloudaccess"
+
+  tags = {
+    Environment = "Production"
+    Owner       = "Platform"
+    Product     = "LandingZone"
+  }
+}
+```
+
+### Power User (Advanced)
+
+GitLab OIDC, custom naming, and explicit CloudAccess policy names.
+
+```hcl
+module "lza_bootstrap" {
+  source = "appvia/lza-bootstrap/aws"
+
+  home_region       = "eu-west-2"
+  available_regions = ["eu-west-2", "us-east-1", "us-west-2"]
+  enable_gitlab_integration = true
+
+  oidc_provider_name        = "gitlab.com"
+  oidc_provider_thumbprints = ["A1B2C3D4E5F60718293A4B5C6D7E8F9012345678"]
+  oidc_provider_client_ids  = ["https://gitlab.com"]
+
+  cloudaccess_repository_name                       = "appvia/lz-aws-cloudaccess"
+  cloudaccess_role_readonly_name                    = "cloudaccess-ro"
+  cloudaccess_role_readwrite_name                   = "cloudaccess"
+  cloudaccess_terraform_state_key                   = "lz-aws-cloudaccess/terraform.tfstate"
+  cloudaccess_terraform_state_readonly_policy_name  = "lza-terraform-state-ro"
+  cloudaccess_terraform_state_readwrite_policy_name = "lza-terraform-state-rw"
+
+  stack_terraform_state_name = "lza-terraform-state"
+  stack_accounts_table_name  = "lza-accounts-table"
+  stack_oidc_provider_name   = "lza-oidc-provider"
+  stack_cicd_iam_roles_name  = "lza-cicd-iam-roles"
+
+  tags = {
+    Environment = "Production"
+    Owner       = "Platform"
+    GitRepo     = "https://gitlab.com/appvia/lz-aws-bootstrap"
+  }
+}
+```
+
+### Migration (Edge Case)
+
+Bootstrap an organization where Terraform state and CI/CD roles already exist, using a distinct state key and explicit naming to avoid collisions.
+
+```hcl
+module "lza_bootstrap" {
+  source = "appvia/lza-bootstrap/aws"
+
+  home_region       = "eu-west-2"
+  available_regions = ["eu-west-2"]
+  enable_github_integration = true
+
+  oidc_provider_name        = "token.actions.githubusercontent.com"
+  oidc_provider_thumbprints = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
+  oidc_provider_client_ids  = ["sts.amazonaws.com"]
+
+  cloudaccess_repository_name = "appvia/lz-aws-cloudaccess"
+  cloudaccess_terraform_state_key = "legacy/cloudaccess/terraform.tfstate"
+
+  stack_terraform_state_name = "legacy-terraform-state"
+  stack_oidc_provider_name   = "legacy-oidc-provider"
+  stack_cicd_iam_roles_name  = "legacy-cicd-iam-roles"
+
+  tags = {
+    Environment = "Migration"
+    Owner       = "Platform"
+    Product     = "LandingZone"
+  }
+}
+```
+
+## Operational Context
+
+- StackSets require AWS Organizations trusted access for CloudFormation.
+- StackSet deployments can take several minutes per region and account.
+- The management account also receives direct stacks for Terraform state and OIDC identity.
+- Ensure the deploying principal has `organizations:DescribeOrganization` and StackSet permissions.
 
 ## Update Documentation
 
