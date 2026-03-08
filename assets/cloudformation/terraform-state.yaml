@@ -7,7 +7,9 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Sub "$${AWS::AccountId}-$${AWS::Region}-tfstate"
-      AccessControl: Private
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
         BlockPublicPolicy: true
@@ -23,7 +25,7 @@ Resources:
         Rules:
           - Id: DeleteNonCurrentVersions
             Status: Enabled
-            NoncurrentVersionExpirationInDays: 30
+            NoncurrentVersionExpirationInDays: 14
       Tags:
 %{ for key, value in tags ~}
         - Key: ${key}
