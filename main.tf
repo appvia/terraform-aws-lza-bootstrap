@@ -172,3 +172,47 @@ resource "aws_cloudformation_stack" "iam_roles_gitlab_management" {
     ]
   }
 }
+
+## Provision the IAM cloud access roles for Azure DevOps within spoke accounts. Azure DevOps
+## cannot independently re-federate a single authenticated pipeline task into multiple AWS
+## accounts, so spokes trust the management account's counterpart role via sts:AssumeRole
+## rather than federating OIDC directly - see iam_roles_azuredevops_management below.
+module "iam_roles_azuredevops" {
+  count   = var.enable_azuredevops_integration ? 1 : 0
+  source  = "appvia/stackset/aws"
+  version = "0.2.10"
+
+  capabilities         = local.capabilities
+  description          = "Provisions the IAM roles required for cloudaccess for Azure DevOps"
+  name                 = var.stack_cicd_iam_roles_name
+  organizational_units = [local.root_id]
+  parameters           = local.azuredevops_spoke_iam_roles_parameters
+  region               = var.home_region
+  tags                 = merge(local.tags, { "Name" = var.stack_cicd_iam_roles_name })
+
+  template = templatefile("${path.module}/assets/cloudformation/azuredevops-pipeline-iam.yaml", {
+    tags = var.tags
+  })
+}
+
+## Deployment of the Azure DevOps IAM roles to the management account - the only account whose
+## roles are federated into directly via OIDC (see module.iam_roles_azuredevops above).
+resource "aws_cloudformation_stack" "iam_roles_azuredevops_management" {
+  count = var.enable_azuredevops_integration ? 1 : 0
+
+  capabilities = local.capabilities
+  name         = var.stack_cicd_iam_roles_name
+  on_failure   = "ROLLBACK"
+  parameters   = local.azuredevops_management_iam_roles_parameters
+  tags         = merge(local.tags, { "Name" = var.stack_cicd_iam_roles_name })
+
+  template_body = templatefile("${path.module}/assets/cloudformation/azuredevops-management-pipeline-iam.yaml", {
+    tags = var.tags
+  })
+
+  lifecycle {
+    ignore_changes = [
+      capabilities,
+    ]
+  }
+}

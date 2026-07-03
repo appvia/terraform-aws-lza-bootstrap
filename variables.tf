@@ -21,25 +21,37 @@ variable "enable_gitlab_integration" {
   default     = false
 }
 
+variable "enable_azuredevops_integration" {
+  description = "Enable Azure DevOps integration for CI/CD. Requires the azuredevops_service_connection variable to be set."
+  type        = bool
+  default     = false
+}
+
+variable "azuredevops_service_connection" {
+  description = "The Azure DevOps organisation/project/service-connection used to build the OIDC subject for the read-write role, e.g. 'my-org/my-project/cloudaccess' (see https://vstoken.dev.azure.com/<organisation-id> for the issuer this pairs with via oidc_provider_name). The read-only role's subject is this value suffixed with '-ro', since Azure DevOps subjects carry no branch/tag/environment claim to otherwise separate the two roles - this requires a dedicated '-ro' Azure DevOps service connection. Required when enable_azuredevops_integration is true."
+  type        = string
+  default     = null
+}
+
 variable "available_regions" {
   description = "List of available regions for deployment we are configuring"
   type        = list(string)
 }
 
 variable "oidc_provider_thumbprints" {
-  description = "OIDC provider thumbprints for GitHub or GitLab"
+  description = "OIDC provider thumbprints for GitHub, GitLab or Azure DevOps"
   type        = list(string)
   default     = []
 }
 
 variable "oidc_provider_client_ids" {
-  description = "OIDC provider client IDs for GitHub or GitLab"
+  description = "OIDC provider client IDs for GitHub, GitLab or Azure DevOps"
   type        = list(string)
   default     = []
 }
 
 variable "oidc_provider_name" {
-  description = "OIDC provider name for GitHub or GitLab"
+  description = "OIDC provider name for GitHub, GitLab or Azure DevOps"
   type        = string
 }
 
