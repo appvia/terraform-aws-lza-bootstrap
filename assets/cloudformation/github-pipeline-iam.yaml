@@ -104,10 +104,17 @@ Resources:
                 token.actions.githubusercontent.com:aud: ["sts.amazonaws.com"]
               StringLike:
                 token.actions.githubusercontent.com:sub:
-                  [
-                    !Sub "repo:$${RepositoryName}:ref:refs/heads/main",
-                    !Sub "repo:$${RepositoryName}:environment:production",
-                  ]
+                  - !Sub "repo:$${RepositoryName}:ref:refs/heads/main"
+                  - !Sub "repo:$${RepositoryName}:environment:production"
+                  - !Sub
+                    - "repo:$${Owner}@*/$${Repo}@*:ref:refs/heads/main"
+                    - Owner: !Select [0, !Split ["/", !Ref RepositoryName]]
+                      Repo: !Select [1, !Split ["/", !Ref RepositoryName]]
+                  - !Sub
+                    - "repo:$${Owner}@*/$${Repo}@*:environment:production"
+                    - Owner: !Select [0, !Split ["/", !Ref RepositoryName]]
+                      Repo: !Select [1, !Split ["/", !Ref RepositoryName]]
+
       ManagedPolicyArns:
         - !Ref TFStatePolicyReadWrite
         - arn:aws:iam::aws:policy/AWSCloudFormationFullAccess
@@ -245,7 +252,12 @@ Resources:
                 token.actions.githubusercontent.com:aud: ["sts.amazonaws.com"]
               StringLike:
                 token.actions.githubusercontent.com:sub:
-                  [!Sub "repo:$${RepositoryName}:*"]
+                  - !Sub "repo:$${RepositoryName}:*"
+                  - !Sub
+                    - "repo:$${Owner}@*/$${Repo}@*:*"
+                    - Owner: !Select [0, !Split ["/", !Ref RepositoryName]]
+                      Repo: !Select [1, !Split ["/", !Ref RepositoryName]]
+
       ManagedPolicyArns:
         - !Ref TFStatePolicyReadOnly
         - arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
