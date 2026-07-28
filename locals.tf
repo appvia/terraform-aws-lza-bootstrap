@@ -6,6 +6,8 @@ locals {
   ## Stack capabilities
   capabilities = ["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM", "CAPABILITY_AUTO_EXPAND"]
 
+  cloudaccess_repo_parts = split("/", var.cloudaccess_repository_name)
+
   ## Terraform State StackSet Parameters
   terraform_state_parameters = {}
 
@@ -29,6 +31,10 @@ locals {
     CloudAccessRoleReadWriteName = var.cloudaccess_role_readwrite_name
     IdentityProviderName         = var.oidc_provider_name
     RepositoryName               = var.cloudaccess_repository_name
+    RepositoryOwner              = local.cloudaccess_repo_parts[0]
+    RepositoryShortName          = local.cloudaccess_repo_parts[1]
+    GithubOrgId                  = var.cloudaccess_github_org_id
+    GithubRepoId                 = var.cloudaccess_github_repo_id
     TerraformStateKey            = var.cloudaccess_terraform_state_key
     TerraformStateROPolicyName   = var.cloudaccess_terraform_state_readonly_policy_name
     TerraformStateRWPolicyName   = var.cloudaccess_terraform_state_readwrite_policy_name

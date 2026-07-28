@@ -101,3 +101,13 @@ variable "stack_cicd_iam_roles_name" {
   type        = string
   default     = "lza-cicd-iam-roles"
 }
+
+variable "cloudaccess_github_org_id" {
+  description = "Numeric GitHub organization ID (e.g. via `gh api orgs/<org> --jq .id`), used to pin the org segment of the OIDC sub-claim trust condition exactly, per GitHub's OIDC-in-AWS hardening guidance."
+  type        = string
+}
+
+variable "cloudaccess_github_repo_id" {
+  description = "Numeric GitHub repository ID for the cloudaccess repo (e.g. via `gh api repos/<org>/<repo> --jq .id`), used to pin the repo segment of the OIDC sub-claim trust condition exactly."
+  type        = string
+}

@@ -15,6 +15,18 @@ Parameters:
   RepositoryName:
     Description: The name of the repository allowed to assume the cloud access roles
     Type: String
+  RepositoryOwner:
+    Description: The owner of the repository allowed to assume the cloud access roles
+    Type: String
+  RepositoryShortName:
+    Description: The short name of the repository allowed to assume the cloud access roles
+    Type: String
+  GithubOrgId:
+    Description: The immutable numeric GitHub organization ID, used to pin the OIDC sub-claim org segment
+    Type: String
+  GithubRepoId:
+    Description: The ID of the Github Repository allowed to assume the cloud access roles
+    Type: String
   TerraformStateKey:
     Description: The terraform state used by the cloud access roles
     Type: String
@@ -104,16 +116,11 @@ Resources:
                 token.actions.githubusercontent.com:aud: ["sts.amazonaws.com"]
               StringLike:
                 token.actions.githubusercontent.com:sub:
-                  - !Sub "repo:$${RepositoryName}:ref:refs/heads/main"
-                  - !Sub "repo:$${RepositoryName}:environment:production"
-                  - !Sub
-                    - "repo:$${Owner}@*/$${Repo}@*:ref:refs/heads/main"
-                    - Owner: !Select [0, !Split ["/", !Ref RepositoryName]]
-                      Repo: !Select [1, !Split ["/", !Ref RepositoryName]]
-                  - !Sub
-                    - "repo:$${Owner}@*/$${Repo}@*:environment:production"
-                    - Owner: !Select [0, !Split ["/", !Ref RepositoryName]]
-                      Repo: !Select [1, !Split ["/", !Ref RepositoryName]]
+                - !Sub "repo:$${RepositoryName}:ref:refs/heads/main"
+                - !Sub "repo:$${RepositoryName}:environment:production"
+                - !Sub "repo:$${RepositoryOwner}@$${GithubOrgId}/$${RepositoryShortName}@$${GithubRepoId}:ref:refs/heads/main"
+                - !Sub "repo:$${RepositoryOwner}@$${GithubOrgId}/$${RepositoryShortName}@$${GithubRepoId}:environment:production"
+
 
       ManagedPolicyArns:
         - !Ref TFStatePolicyReadWrite
@@ -253,10 +260,7 @@ Resources:
               StringLike:
                 token.actions.githubusercontent.com:sub:
                   - !Sub "repo:$${RepositoryName}:*"
-                  - !Sub
-                    - "repo:$${Owner}@*/$${Repo}@*:*"
-                    - Owner: !Select [0, !Split ["/", !Ref RepositoryName]]
-                      Repo: !Select [1, !Split ["/", !Ref RepositoryName]]
+                  - !Sub "repo:$${RepositoryOwner}@$${GithubOrgId}/$${RepositoryShortName}@$${GithubRepoId}:*"
 
       ManagedPolicyArns:
         - !Ref TFStatePolicyReadOnly
