@@ -146,7 +146,6 @@ The `terraform-docs` utility is used to generate this README. Follow the below s
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_available_regions"></a> [available\_regions](#input\_available\_regions) | List of available regions for deployment we are configuring | `list(string)` | n/a | yes |
-| <a name="input_cloudaccess_repository_name"></a> [cloudaccess\_repository\_name](#input\_cloudaccess\_repository\_name) | Name of the CloudAccess repository | `string` | n/a | yes |
 | <a name="input_home_region"></a> [home\_region](#input\_home\_region) | The AWS region we will use at the home region | `string` | n/a | yes |
 | <a name="input_oidc_provider_name"></a> [oidc\_provider\_name](#input\_oidc\_provider\_name) | OIDC provider name for GitHub or GitLab | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags to apply to all resources | `map(string)` | n/a | yes |
@@ -155,8 +154,8 @@ The `terraform-docs` utility is used to generate this README. Follow the below s
 | <a name="input_cloudaccess_terraform_state_key"></a> [cloudaccess\_terraform\_state\_key](#input\_cloudaccess\_terraform\_state\_key) | S3 key to store Terraform state for CloudAccess | `string` | `"tf-aws-cloudaccess/terraform.tfstate"` | no |
 | <a name="input_cloudaccess_terraform_state_readonly_policy_name"></a> [cloudaccess\_terraform\_state\_readonly\_policy\_name](#input\_cloudaccess\_terraform\_state\_readonly\_policy\_name) | Name of the policy for the CloudAccess role for read-only access | `string` | `"lza-cloudaccess-terraform-state-ro"` | no |
 | <a name="input_cloudaccess_terraform_state_readwrite_policy_name"></a> [cloudaccess\_terraform\_state\_readwrite\_policy\_name](#input\_cloudaccess\_terraform\_state\_readwrite\_policy\_name) | Name of the policy for the CloudAccess role for read-write access | `string` | `"lza-cloudaccess-terraform-state-rw"` | no |
-| <a name="input_enable_github_integration"></a> [enable\_github\_integration](#input\_enable\_github\_integration) | Enable GitHub integration for CI/CD | `bool` | `false` | no |
-| <a name="input_enable_gitlab_integration"></a> [enable\_gitlab\_integration](#input\_enable\_gitlab\_integration) | Enable GitLab integration for CI/CD | `bool` | `false` | no |
+| <a name="input_github"></a> [github](#input\_github) | Github configuration | <pre>object({<br/>    enable_legacy_claims = optional(bool, true)<br/>    organization_name    = string<br/>    organization_id      = optional(string, "")<br/>    repository_name      = string<br/>    repository_id        = optional(string, "")<br/>  })</pre> | `null` | no |
+| <a name="input_gitlab"></a> [gitlab](#input\_gitlab) | Gitlab configuration | <pre>object({<br/>    organization_name = string<br/>    repository_name   = string<br/>  })</pre> | `null` | no |
 | <a name="input_oidc_provider_client_ids"></a> [oidc\_provider\_client\_ids](#input\_oidc\_provider\_client\_ids) | OIDC provider client IDs for GitHub or GitLab | `list(string)` | `[]` | no |
 | <a name="input_oidc_provider_thumbprints"></a> [oidc\_provider\_thumbprints](#input\_oidc\_provider\_thumbprints) | OIDC provider thumbprints for GitHub or GitLab | `list(string)` | `[]` | no |
 | <a name="input_stack_accounts_table_name"></a> [stack\_accounts\_table\_name](#input\_stack\_accounts\_table\_name) | Is the name of the stackset used to provision the accounts table resources | `string` | `"lza-accounts-table"` | no |

@@ -1,5 +1,5 @@
 ## Provision the terraform state dependencies within all accounts. This is
-## deployed as a stackset to all accounts.
+## deployed as a stack set to all accounts.
 module "terraform_state" {
   source  = "appvia/stackset/aws"
   version = "0.2.10"
@@ -95,12 +95,12 @@ resource "aws_cloudformation_stack" "oidc_provider_management" {
 
 ## Provision the IAM cloud access roles for Github within all accounts
 module "iam_roles_github" {
-  count   = var.enable_github_integration ? 1 : 0
+  count   = local.is_using_github ? 1 : 0
   source  = "appvia/stackset/aws"
   version = "0.2.10"
 
   capabilities         = local.capabilities
-  description          = "Provisions the IAM roles required for cloudaccess for Github"
+  description          = "Provisions the IAM roles required for cloud access for Github"
   name                 = var.stack_cicd_iam_roles_name
   organizational_units = [local.root_id]
   parameters           = local.iam_roles_parameters
@@ -114,7 +114,7 @@ module "iam_roles_github" {
 
 ## Deployment of same stack to the management account
 resource "aws_cloudformation_stack" "iam_roles_github_management" {
-  count = var.enable_github_integration ? 1 : 0
+  count = local.is_using_github ? 1 : 0
 
   capabilities = local.capabilities
   name         = var.stack_cicd_iam_roles_name
@@ -135,7 +135,7 @@ resource "aws_cloudformation_stack" "iam_roles_github_management" {
 
 ## Provision the IAM cloud access roles for Gitlab within all accounts
 module "iam_roles_gitlab" {
-  count   = var.enable_gitlab_integration ? 1 : 0
+  count   = local.is_using_gitlab ? 1 : 0
   source  = "appvia/stackset/aws"
   version = "0.2.10"
 
@@ -154,7 +154,7 @@ module "iam_roles_gitlab" {
 
 ## Deployment of same stack to the management account
 resource "aws_cloudformation_stack" "iam_roles_gitlab_management" {
-  count = var.enable_gitlab_integration ? 1 : 0
+  count = local.is_using_gitlab ? 1 : 0
 
   capabilities = local.capabilities
   name         = var.stack_cicd_iam_roles_name

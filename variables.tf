@@ -9,18 +9,6 @@ variable "home_region" {
   type        = string
 }
 
-variable "enable_github_integration" {
-  description = "Enable GitHub integration for CI/CD"
-  type        = bool
-  default     = false
-}
-
-variable "enable_gitlab_integration" {
-  description = "Enable GitLab integration for CI/CD"
-  type        = bool
-  default     = false
-}
-
 variable "available_regions" {
   description = "List of available regions for deployment we are configuring"
   type        = list(string)
@@ -43,15 +31,31 @@ variable "oidc_provider_name" {
   type        = string
 }
 
+variable "github" {
+  description = "Github configuration"
+  type = object({
+    enable_legacy_claims = optional(bool, true)
+    organization_name    = string
+    organization_id      = optional(string, "")
+    repository_name      = string
+    repository_id        = optional(string, "")
+  })
+  default = null
+}
+
+variable "gitlab" {
+  description = "Gitlab configuration"
+  type = object({
+    organization_name = string
+    repository_name   = string
+  })
+  default = null
+}
+
 variable "cloudaccess_terraform_state_key" {
   description = "S3 key to store Terraform state for CloudAccess"
   type        = string
   default     = "tf-aws-cloudaccess/terraform.tfstate"
-}
-
-variable "cloudaccess_repository_name" {
-  description = "Name of the CloudAccess repository"
-  type        = string
 }
 
 variable "cloudaccess_role_readwrite_name" {
