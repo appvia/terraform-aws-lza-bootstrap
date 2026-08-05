@@ -178,7 +178,7 @@ resource "aws_cloudformation_stack" "iam_roles_gitlab_management" {
 ## accounts, so spokes trust the management account's counterpart role via sts:AssumeRole
 ## rather than federating OIDC directly - see iam_roles_azuredevops_management below.
 module "iam_roles_azuredevops" {
-  count   = var.enable_azuredevops_integration ? 1 : 0
+  count   = local.is_using_azuredevops ? 1 : 0
   source  = "appvia/stackset/aws"
   version = "0.2.10"
 
@@ -198,7 +198,7 @@ module "iam_roles_azuredevops" {
 ## Deployment of the Azure DevOps IAM roles to the management account - the only account whose
 ## roles are federated into directly via OIDC (see module.iam_roles_azuredevops above).
 resource "aws_cloudformation_stack" "iam_roles_azuredevops_management" {
-  count = var.enable_azuredevops_integration ? 1 : 0
+  count = local.is_using_azuredevops ? 1 : 0
 
   capabilities = local.capabilities
   name         = var.stack_cicd_iam_roles_name
