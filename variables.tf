@@ -9,30 +9,6 @@ variable "home_region" {
   type        = string
 }
 
-variable "enable_github_integration" {
-  description = "Enable GitHub integration for CI/CD"
-  type        = bool
-  default     = false
-}
-
-variable "enable_gitlab_integration" {
-  description = "Enable GitLab integration for CI/CD"
-  type        = bool
-  default     = false
-}
-
-variable "enable_azuredevops_integration" {
-  description = "Enable Azure DevOps integration for CI/CD. Requires the azuredevops_service_connection variable to be set."
-  type        = bool
-  default     = false
-}
-
-variable "azuredevops_service_connection" {
-  description = "The Azure DevOps organisation/project/service-connection used to build the OIDC subject for the read-write role, e.g. 'my-org/my-project/cloudaccess' (see https://vstoken.dev.azure.com/<organisation-id> for the issuer this pairs with via oidc_provider_name). The read-only role's subject is this value suffixed with '-ro', since Azure DevOps subjects carry no branch/tag/environment claim to otherwise separate the two roles - this requires a dedicated '-ro' Azure DevOps service connection. Required when enable_azuredevops_integration is true."
-  type        = string
-  default     = null
-}
-
 variable "available_regions" {
   description = "List of available regions for deployment we are configuring"
   type        = list(string)
@@ -55,15 +31,40 @@ variable "oidc_provider_name" {
   type        = string
 }
 
+variable "azuredevops" {
+  description = "Azure DevOps configuration"
+  type = object({
+    service_connection_name = string
+    repository_name         = string
+  })
+  default = null
+}
+
+variable "github" {
+  description = "Github configuration"
+  type = object({
+    enable_legacy_claims = optional(bool, true)
+    organization_name    = string
+    organization_id      = optional(string, "")
+    repository_name      = string
+    repository_id        = optional(string, "")
+  })
+  default = null
+}
+
+variable "gitlab" {
+  description = "Gitlab configuration"
+  type = object({
+    organization_name = string
+    repository_name   = string
+  })
+  default = null
+}
+
 variable "cloudaccess_terraform_state_key" {
   description = "S3 key to store Terraform state for CloudAccess"
   type        = string
   default     = "tf-aws-cloudaccess/terraform.tfstate"
-}
-
-variable "cloudaccess_repository_name" {
-  description = "Name of the CloudAccess repository"
-  type        = string
 }
 
 variable "cloudaccess_role_readwrite_name" {

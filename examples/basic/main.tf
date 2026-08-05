@@ -3,14 +3,19 @@
 module "bootstrap_github" {
   source = "../../"
 
-  available_regions         = ["eu-west-2", "us-east-1"]
-  enable_github_integration = true
+  available_regions = ["eu-west-2", "us-east-1"]
+
+  github = {
+    organization_name = "appvia"
+    organization_id   = "1234567890"
+    repository_name   = "lz-aws-cloudaccess"
+    repository_id     = "1234567890"
+  }
 
   ## Home region
   home_region = "eu-west-2"
 
   ## Cloudaccess configuration
-  cloudaccess_repository_name                       = "appvia/lz-aws-cloudaccess"
   cloudaccess_role_readonly_name                    = "cloudaccess-ro"
   cloudaccess_role_readwrite_name                   = "cloudaccess"
   cloudaccess_terraform_state_key                   = "lz-aws-cloudaccess.tfstate"

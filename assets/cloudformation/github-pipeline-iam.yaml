@@ -13,8 +13,25 @@ Parameters:
     Description: The name of the OIDC Identity Provider
     Type: String
   RepositoryName:
-    Description: The name of the repository allowed to assume the cloud access roles
+    Description: The name of the repository allowed to assume the cloud access roles (without the organization name)
     Type: String
+  EnableLegacyClaims:
+    Description: Whether to enable legacy claims for the Github organization and repository
+    Type: String
+    AllowedValues: ["true", "false"]
+    Default: "true"
+  GithubOrganizationName:
+    Description: The name of the Github organization
+    Type: String
+    Default: ""
+  GithubOrganizationID:
+    Description: The ID of the Github organization
+    Type: String
+    Default: ""
+  RepositoryID:
+    Description: The ID of the repository allowed to assume the cloud access roles
+    Type: String
+    Default: ""
   TerraformStateKey:
     Description: The terraform state used by the cloud access roles
     Type: String
@@ -25,12 +42,21 @@ Parameters:
     Description: The name of the Terraform State Read Only IAM Policy
     Type: String
 
+Conditions:
+  # When Github Organization ID and Repository ID are provided, also allow
+  # the ID-scoped subject claims alongside the legacy name-based claims
+  HasGithubOrgAndRepoIDs: !And
+    - !Not [!Equals [!Ref GithubOrganizationID, ""]]
+    - !Not [!Equals [!Ref RepositoryID, ""]]
+  # Whether to enable legacy claims for the Github organization and repository
+  EnableLegacyClaims: !Equals [!Ref EnableLegacyClaims, "true"]
+
 Resources:
   TFStatePolicyReadWrite:
     Type: "AWS::IAM::ManagedPolicy"
     Properties:
       ManagedPolicyName: !Ref TerraformStateRWPolicyName
-      Description: "Provides the permissions for cloudaccess to read and write to the terraform state"
+      Description: "Provides the permissions for cloud access to read and write to the terraform state"
       PolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -104,10 +130,22 @@ Resources:
                 token.actions.githubusercontent.com:aud: ["sts.amazonaws.com"]
               StringLike:
                 token.actions.githubusercontent.com:sub:
-                  [
-                    !Sub "repo:$${RepositoryName}:ref:refs/heads/main",
-                    !Sub "repo:$${RepositoryName}:environment:production",
-                  ]
+                  - !If
+                      - EnableLegacyClaims
+                      - !Sub "repo:$${GithubOrganizationName}/$${RepositoryName}:ref:refs/heads/main"
+                      - !Ref AWS::NoValue
+                  - !If
+                      - EnableLegacyClaims
+                      - !Sub "repo:$${GithubOrganizationName}/$${RepositoryName}:environment:production"
+                      - !Ref AWS::NoValue
+                  - !If
+                      - HasGithubOrgAndRepoIDs
+                      - !Sub "repo:$${GithubOrganizationName}@$${GithubOrganizationID}/$${RepositoryName}@$${RepositoryID}:ref:refs/heads/main"
+                      - !Ref AWS::NoValue
+                  - !If
+                      - HasGithubOrgAndRepoIDs
+                      - !Sub "repo:$${GithubOrganizationName}@$${GithubOrganizationID}/$${RepositoryName}@$${RepositoryID}:environment:production"
+                      - !Ref AWS::NoValue
       ManagedPolicyArns:
         - !Ref TFStatePolicyReadWrite
         - arn:aws:iam::aws:policy/AWSCloudFormationFullAccess
@@ -245,7 +283,14 @@ Resources:
                 token.actions.githubusercontent.com:aud: ["sts.amazonaws.com"]
               StringLike:
                 token.actions.githubusercontent.com:sub:
-                  [!Sub "repo:$${RepositoryName}:*"]
+                  - !If
+                      - EnableLegacyClaims
+                      - !Sub "repo:$${GithubOrganizationName}/$${RepositoryName}:*"
+                      - !Ref AWS::NoValue
+                  - !If
+                      - HasGithubOrgAndRepoIDs
+                      - !Sub "repo:$${GithubOrganizationName}@$${GithubOrganizationID}/$${RepositoryName}@$${RepositoryID}:*"
+                      - !Ref AWS::NoValue
       ManagedPolicyArns:
         - !Ref TFStatePolicyReadOnly
         - arn:aws:iam::aws:policy/AWSCloudFormationReadOnlyAccess
