@@ -6,6 +6,8 @@ locals {
   is_using_github = var.github != null
   ## Indicates we are using Gitlab
   is_using_gitlab = var.gitlab != null
+  ## Indicates we are using AzureDevOps
+  is_using_azuredevops = var.azuredevops != null
   ## Stack capabilities
   capabilities = ["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM", "CAPABILITY_AUTO_EXPAND"]
 
@@ -48,6 +50,23 @@ locals {
     TerraformStateKey            = var.cloudaccess_terraform_state_key
     TerraformStateROPolicyName   = var.cloudaccess_terraform_state_readonly_policy_name
     TerraformStateRWPolicyName   = var.cloudaccess_terraform_state_readwrite_policy_name
+  })
+
+  ## Parameters for the IAM roles stackset deployed to spoke accounts for Azure DevOps. Spoke
+  ## accounts don't federate OIDC directly - Azure DevOps cannot independently re-federate a
+  ## single authenticated pipeline task into multiple AWS accounts - so they instead trust the
+  ## counterpart role in the management account via sts:AssumeRole, chained from there.
+  azuredevops_spoke_iam_roles_parameters = merge({
+    for key, value in local.iam_roles_parameters : key => value if key != "IdentityProviderName"
+    }, {
+    AzureDevOpsPrimaryRoleAccountId = data.aws_organizations_organization.current.master_account_id
+  })
+
+  ## Parameters for the IAM roles stack deployed to the management account for Azure DevOps -
+  ## the only account whose roles are federated into directly via OIDC (see
+  ## azuredevops_spoke_iam_roles_parameters above).
+  azuredevops_management_iam_roles_parameters = merge(local.iam_roles_parameters, {
+    AzureDevOpsServiceConnection = var.azuredevops.service_connection_name
   })
 
   ## Tags applied to the stack set and the resources it creates

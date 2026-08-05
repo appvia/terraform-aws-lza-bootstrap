@@ -15,20 +15,29 @@ variable "available_regions" {
 }
 
 variable "oidc_provider_thumbprints" {
-  description = "OIDC provider thumbprints for GitHub or GitLab"
+  description = "OIDC provider thumbprints for GitHub, GitLab or Azure DevOps"
   type        = list(string)
   default     = []
 }
 
 variable "oidc_provider_client_ids" {
-  description = "OIDC provider client IDs for GitHub or GitLab"
+  description = "OIDC provider client IDs for GitHub, GitLab or Azure DevOps"
   type        = list(string)
   default     = []
 }
 
 variable "oidc_provider_name" {
-  description = "OIDC provider name for GitHub or GitLab"
+  description = "OIDC provider name for GitHub, GitLab or Azure DevOps"
   type        = string
+}
+
+variable "azuredevops" {
+  description = "Azure DevOps configuration"
+  type = object({
+    service_connection_name = string
+    repository_name         = string
+  })
+  default = null
 }
 
 variable "github" {
