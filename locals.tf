@@ -56,9 +56,10 @@ locals {
   ## accounts don't federate OIDC directly - Azure DevOps cannot independently re-federate a
   ## single authenticated pipeline task into multiple AWS accounts - so they instead trust the
   ## counterpart role in the management account via sts:AssumeRole, chained from there.
-  azuredevops_spoke_iam_roles_parameters = merge(local.iam_roles_parameters, {
+  azuredevops_spoke_iam_roles_parameters = merge({
+    for key, value in local.iam_roles_parameters : key => value if key != "IdentityProviderName"
+    }, {
     AzureDevOpsPrimaryRoleAccountId = data.aws_organizations_organization.current.master_account_id
-    RepositoryName                  = var.azuredevops.repository_name
   })
 
   ## Parameters for the IAM roles stack deployed to the management account for Azure DevOps -
@@ -66,7 +67,6 @@ locals {
   ## azuredevops_spoke_iam_roles_parameters above).
   azuredevops_management_iam_roles_parameters = merge(local.iam_roles_parameters, {
     AzureDevOpsServiceConnection = var.azuredevops.service_connection_name
-    RepositoryName               = var.azuredevops.repository_name
   })
 
   ## Tags applied to the stack set and the resources it creates
