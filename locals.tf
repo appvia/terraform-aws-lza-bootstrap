@@ -66,7 +66,7 @@ locals {
   ## the only account whose roles are federated into directly via OIDC (see
   ## azuredevops_spoke_iam_roles_parameters above).
   azuredevops_management_iam_roles_parameters = merge(local.iam_roles_parameters, {
-    AzureDevOpsServiceConnection = var.azuredevops.service_connection_name
+    AzureDevOpsServiceConnection = local.is_using_azuredevops ? var.azuredevops.service_connection_name : null
   })
 
   ## Tags applied to the stack set and the resources it creates
